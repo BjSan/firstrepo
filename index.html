@@ -36,7 +36,7 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <div id="hint">Klick um die Farbe zu ändern</div>
+  <div id="hint">Den Ball anklicken um die Farbe zu ändern</div>
 
   <script>
     const canvas = document.getElementById('canvas');
@@ -101,7 +101,13 @@
       }
     }
 
-    canvas.addEventListener('click', () => {
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const dist = Math.hypot(mx - ball.x, my - ball.y);
+      if (dist > ball.r + 10) return; // nur Klick auf Ball
+
       colorIndex = (colorIndex + 1) % colors.length;
       ball.targetColor = colors[colorIndex];
       lerpT = 0;
@@ -181,6 +187,11 @@
 
       requestAnimationFrame(draw);
     }
+
+    // Animation neu starten falls Tab-Wechsel sie stoppt
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) requestAnimationFrame(draw);
+    });
 
     function hexToRgb(hex) {
       if (hex.startsWith('rgb')) {
